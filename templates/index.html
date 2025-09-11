@@ -3,243 +3,430 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Calculator</title>
+    <title>Advanced Calculator</title>
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg-color: #f5f5f5;
+            --text-color: #333;
+            --nav-bg: #2c3e50;
+            --calc-bg: #fff;
+            --btn-bg: #3498db;
+            --btn-hover: #2980b9;
+            --display-bg: #ecf0f1;
+        }
+        
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --text-color: #fff;
+            --nav-bg: #000;
+            --calc-bg: #2d2d2d;
+            --btn-bg: #444;
+            --btn-hover: #555;
+            --display-bg: #333;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 20px;
-            background-color: #f0f2f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+        
+        .navbar {
+            background: var(--nav-bg);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .nav-brand { font-size: 1.5rem; font-weight: bold; color: #fff; }
+        
+        .nav-menu {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .nav-btn {
+            background: none;
+            border: 1px solid #fff;
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .nav-btn:hover { background: #fff; color: var(--nav-bg); }
+        .nav-btn.active { background: #fff; color: var(--nav-bg); }
+        
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
         }
         
         .calculator {
-            background: black;
-            padding: 30px;
+            background: var(--calc-bg);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .display {
+            background: var(--display-bg);
+            padding: 1rem;
             border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        h1 {
-            text-align: center;
-            color: #2e7d32;
-            margin-bottom: 30px;
-        }
-        
-        .input-group {
-            margin-bottom: 15px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #555;
-        }
-        
-        input[type="number"] {
+            margin-bottom: 1rem;
+            min-height: 60px;
+            font-size: 2rem;
+            text-align: right;
+            border: none;
             width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-            box-sizing: border-box;
+            color: var(--text-color);
         }
         
-        .operations {
+        .buttons {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             gap: 10px;
-            margin: 20px 0;
         }
         
-        .operation-btn {
-            padding: 15px;
-            background-color: #4CAF50;
-            color: white;
+        .basic-grid { grid-template-columns: repeat(4, 1fr); }
+        .scientific-grid { grid-template-columns: repeat(5, 1fr); }
+        
+        .btn {
+            padding: 1rem;
             border: none;
-            border-radius: 5px;
+            border-radius: 10px;
+            font-size: 1.2rem;
             cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
+            transition: all 0.2s;
+            background: var(--btn-bg);
+            color: #fff;
         }
         
-        .operation-btn:hover {
-            background-color: #45a049;
+        .btn:hover { background: var(--btn-hover); transform: translateY(-2px); }
+        .btn.operator { background: #e74c3c; }
+        .btn.equals { background: #27ae60; grid-column: span 2; }
+        .btn.clear { background: #f39c12; }
+        .btn.zero { grid-column: span 2; }
+        
+        .calc-type {
+            display: none;
         }
         
-        .operation-btn.active {
-            background-color: #056E29 ;
+        .calc-type.active {
+            display: block;
         }
         
-        .calculate-btn {
-            width: 100%;
-            padding: 15px;
-            background-color: #FF6B35;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 18px;
-            font-weight: bold;
-            margin-top: 20px;
-            transition: background-color 0.3s;
+        .author {
+            background: var(--calc-bg);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
         
-        .calculate-btn:hover {
-            background-color: #E55A2B;
+        .author h3 { margin-bottom: 1rem; color: #3498db; }
+        .author-links { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+        .author-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: #3498db;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: all 0.3s;
         }
+        .author-link:hover { background: #2980b9; transform: translateY(-2px); }
         
-        .result {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #e8f5e8;
-            border-left: 4px solid #4CAF50;
-            border-radius: 5px;
-            min-height: 20px;
-        }
-        
-        .result h3 {
-            margin: 0 0 10px 0;
-            color: #333;
-        }
-        
-        .result-value {
-            font-size: 24px;
-            font-weight: bold;
-            color: #2e7d32;
-        }
-        
-        .preview {
-            margin-top: 10px;
-            padding: 10px;
-            background-color: #f5f5f5;
-            border-radius: 5px;
-            font-family: monospace;
-            color: #666;
+        @media (max-width: 768px) {
+            .navbar { flex-direction: column; gap: 1rem; }
+            .nav-menu { flex-wrap: wrap; }
+            .container { margin: 1rem auto; }
+            .calculator { padding: 1rem; }
         }
     </style>
 </head>
 <body>
-    <div class="calculator">
-        <h1>🧮 Simple Calculator</h1>
-        
-        <div class="input-group">
-            <label for="num1">First Number:</label>
-            <input type="number" id="num1" placeholder="Enter first number" step="any">
+    <nav class="navbar">
+        <div class="nav-brand">🧮 Advanced Calculator</div>
+        <div class="nav-menu">
+            <button class="nav-btn active" onclick="showCalculator('basic')">Basic</button>
+            <button class="nav-btn" onclick="showCalculator('scientific')">Scientific</button>
+            <button class="nav-btn" onclick="showCalculator('programmer')">Programmer</button>
+            <button class="nav-btn" onclick="showCalculator('unit')">Unit Converter</button>
+            <button class="nav-btn" onclick="toggleTheme()">🌙 Dark Mode</button>
         </div>
-        
-        <div class="input-group">
-            <label for="num2">Second Number:</label>
-            <input type="number" id="num2" placeholder="Enter second number" step="any">
-        </div>
-        
-        <div class="input-group">
-            <label>Select Operation:</label>
-            <div class="operations">
-                <button class="operation-btn" data-operation="addition">➕ Addition</button>
-                <button class="operation-btn" data-operation="subtraction">➖ Subtraction</button>
-                <button class="operation-btn" data-operation="multiplication">✖️ Multiplication</button>
-                <button class="operation-btn" data-operation="division">➗ Division</button>
-                <button class="operation-btn" data-operation="power">🔢 Power</button>
-                <button class="operation-btn" data-operation="log">📊 Log</button>
+    </nav>
+    
+    <div class="container">
+        <div class="calculator">
+            <input type="text" class="display" id="display" readonly>
+            
+            <div id="basic" class="calc-type active">
+                <div class="buttons basic-grid">
+                    <button class="btn clear" onclick="clearDisplay()">C</button>
+                    <button class="btn clear" onclick="deleteLast()">⌫</button>
+                    <button class="btn operator" onclick="appendToDisplay('/')">/</button>
+                    <button class="btn operator" onclick="appendToDisplay('*')">×</button>
+                    
+                    <button class="btn" onclick="appendToDisplay('7')">7</button>
+                    <button class="btn" onclick="appendToDisplay('8')">8</button>
+                    <button class="btn" onclick="appendToDisplay('9')">9</button>
+                    <button class="btn operator" onclick="appendToDisplay('-')">-</button>
+                    
+                    <button class="btn" onclick="appendToDisplay('4')">4</button>
+                    <button class="btn" onclick="appendToDisplay('5')">5</button>
+                    <button class="btn" onclick="appendToDisplay('6')">6</button>
+                    <button class="btn operator" onclick="appendToDisplay('+')">+</button>
+                    
+                    <button class="btn" onclick="appendToDisplay('1')">1</button>
+                    <button class="btn" onclick="appendToDisplay('2')">2</button>
+                    <button class="btn" onclick="appendToDisplay('3')">3</button>
+                    <button class="btn equals" onclick="calculate()" rowspan="2">=</button>
+                    
+                    <button class="btn zero" onclick="appendToDisplay('0')">0</button>
+                    <button class="btn" onclick="appendToDisplay('.')">.</button>
+                </div>
+            </div>
+            
+            <div id="scientific" class="calc-type">
+                <div class="buttons scientific-grid">
+                    <button class="btn clear" onclick="clearDisplay()">C</button>
+                    <button class="btn clear" onclick="deleteLast()">⌫</button>
+                    <button class="btn" onclick="appendToDisplay('(')">(</button>
+                    <button class="btn" onclick="appendToDisplay(')')">)</button>
+                    <button class="btn operator" onclick="appendToDisplay('/')">/</button>
+                    
+                    <button class="btn" onclick="appendToDisplay('sin(')">sin</button>
+                    <button class="btn" onclick="appendToDisplay('cos(')">cos</button>
+                    <button class="btn" onclick="appendToDisplay('tan(')">tan</button>
+                    <button class="btn" onclick="appendToDisplay('log(')">log</button>
+                    <button class="btn operator" onclick="appendToDisplay('*')">×</button>
+                    
+                    <button class="btn" onclick="appendToDisplay('7')">7</button>
+                    <button class="btn" onclick="appendToDisplay('8')">8</button>
+                    <button class="btn" onclick="appendToDisplay('9')">9</button>
+                    <button class="btn" onclick="appendToDisplay('^')">x^y</button>
+                    <button class="btn operator" onclick="appendToDisplay('-')">-</button>
+                    
+                    <button class="btn" onclick="appendToDisplay('4')">4</button>
+                    <button class="btn" onclick="appendToDisplay('5')">5</button>
+                    <button class="btn" onclick="appendToDisplay('6')">6</button>
+                    <button class="btn" onclick="appendToDisplay('sqrt(')">√</button>
+                    <button class="btn operator" onclick="appendToDisplay('+')">+</button>
+                    
+                    <button class="btn" onclick="appendToDisplay('1')">1</button>
+                    <button class="btn" onclick="appendToDisplay('2')">2</button>
+                    <button class="btn" onclick="appendToDisplay('3')">3</button>
+                    <button class="btn" onclick="appendToDisplay('π')">π</button>
+                    <button class="btn equals" onclick="calculate()" rowspan="2">=</button>
+                    
+                    <button class="btn" onclick="appendToDisplay('0')">0</button>
+                    <button class="btn" onclick="appendToDisplay('.')">.</button>
+                    <button class="btn" onclick="appendToDisplay('e')">e</button>
+                    <button class="btn" onclick="appendToDisplay('ln(')">ln</button>
+                </div>
+            </div>
+            
+            <div id="programmer" class="calc-type">
+                <div class="buttons basic-grid">
+                    <button class="btn clear" onclick="clearDisplay()">C</button>
+                    <button class="btn" onclick="convertBase('bin')">BIN</button>
+                    <button class="btn" onclick="convertBase('oct')">OCT</button>
+                    <button class="btn" onclick="convertBase('hex')">HEX</button>
+                    
+                    <button class="btn" onclick="appendToDisplay('A')">A</button>
+                    <button class="btn" onclick="appendToDisplay('B')">B</button>
+                    <button class="btn" onclick="appendToDisplay('C')">C</button>
+                    <button class="btn" onclick="appendToDisplay('D')">D</button>
+                    
+                    <button class="btn" onclick="appendToDisplay('E')">E</button>
+                    <button class="btn" onclick="appendToDisplay('F')">F</button>
+                    <button class="btn" onclick="appendToDisplay('7')">7</button>
+                    <button class="btn" onclick="appendToDisplay('8')">8</button>
+                    
+                    <button class="btn" onclick="appendToDisplay('9')">9</button>
+                    <button class="btn" onclick="appendToDisplay('4')">4</button>
+                    <button class="btn" onclick="appendToDisplay('5')">5</button>
+                    <button class="btn" onclick="appendToDisplay('6')">6</button>
+                    
+                    <button class="btn" onclick="appendToDisplay('1')">1</button>
+                    <button class="btn" onclick="appendToDisplay('2')">2</button>
+                    <button class="btn" onclick="appendToDisplay('3')">3</button>
+                    <button class="btn" onclick="appendToDisplay('0')">0</button>
+                </div>
+            </div>
+            
+            <div id="unit" class="calc-type">
+                <div style="display: grid; gap: 1rem;">
+                    <select id="unitType" onchange="updateUnits()" style="padding: 1rem; border-radius: 10px; border: none; background: var(--display-bg); color: var(--text-color);">
+                        <option value="length">Length</option>
+                        <option value="weight">Weight</option>
+                        <option value="temperature">Temperature</option>
+                    </select>
+                    <input type="number" id="fromValue" placeholder="Enter value" style="padding: 1rem; border-radius: 10px; border: none; background: var(--display-bg); color: var(--text-color);">
+                    <select id="fromUnit" style="padding: 1rem; border-radius: 10px; border: none; background: var(--display-bg); color: var(--text-color);"></select>
+                    <select id="toUnit" style="padding: 1rem; border-radius: 10px; border: none; background: var(--display-bg); color: var(--text-color);"></select>
+                    <button class="btn" onclick="convertUnit()">Convert</button>
+                    <div id="unitResult" style="padding: 1rem; background: var(--display-bg); border-radius: 10px; text-align: center;">Result will appear here</div>
+                </div>
             </div>
         </div>
         
-        <div class="preview" id="preview">
-            Select numbers and operation to see preview
-        </div>
-        
-        <button class="calculate-btn" onclick="calculate()">Calculate Result</button>
-        
-        <div class="result" id="result" style="display: none;">
-            <h3>Result:</h3>
-            <div class="result-value" id="resultValue"></div>
+        <div class="author">
+            <h3>👨💻 Developer Information</h3>
+            <div class="author-links">
+                <a href="https://github.com/ayush-code63" target="_blank" class="author-link">
+                    <span>🐙</span> GitHub
+                </a>
+                <a href="https://t.me/ayush_maurya_63" target="_blank" class="author-link">
+                    <span>📱</span> Telegram
+                </a>
+            </div>
         </div>
     </div>
-
+    
     <script>
-        let selectedOperation = '';
+        let currentCalculator = 'basic';
         
-        // Handle operation button clicks
-        document.querySelectorAll('.operation-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                // Remove active class from all buttons
-                document.querySelectorAll('.operation-btn').forEach(b => b.classList.remove('active'));
-                // Add active class to clicked button
-                btn.classList.add('active');
-                selectedOperation = btn.dataset.operation;
-                updatePreview();
-            });
-        });
-        
-        // Update preview when inputs change
-        document.getElementById('num1').addEventListener('input', updatePreview);
-        document.getElementById('num2').addEventListener('input', updatePreview);
-        
-        function updatePreview() {
-            const num1 = document.getElementById('num1').value;
-            const num2 = document.getElementById('num2').value;
-            const preview = document.getElementById('preview');
+        function showCalculator(type) {
+            document.querySelectorAll('.calc-type').forEach(calc => calc.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             
-            if (selectedOperation === 'log' && num1) {
-                preview.textContent = `log(${num1}) = ?`;
-            } else if (num1 && num2 && selectedOperation) {
-                let symbol = '';
-                switch(selectedOperation) {
-                    case 'addition': symbol = '+'; break;
-                    case 'subtraction': symbol = '-'; break;
-                    case 'multiplication': symbol = '×'; break;
-                    case 'division': symbol = '÷'; break;
-                    case 'power': symbol = '^'; break;
-                }
-                preview.textContent = `${num1} ${symbol} ${num2} = ?`;
-            } else {
-                preview.textContent = 'Select numbers and operation to see preview';
-            }
+            document.getElementById(type).classList.add('active');
+            event.target.classList.add('active');
+            currentCalculator = type;
+            clearDisplay();
+        }
+        
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            body.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
+        }
+        
+        function appendToDisplay(value) {
+            document.getElementById('display').value += value;
+        }
+        
+        function clearDisplay() {
+            document.getElementById('display').value = '';
+        }
+        
+        function deleteLast() {
+            const display = document.getElementById('display');
+            display.value = display.value.slice(0, -1);
         }
         
         async function calculate() {
-            const num1 = document.getElementById('num1').value;
-            const num2 = document.getElementById('num2').value;
-            
-            if (!num1) {
-                alert('Please enter the first number');
-                return;
-            }
-            
-            if (selectedOperation !== 'log' && !num2) {
-                alert('Please enter both numbers');
-                return;
-            }
-            
-            if (!selectedOperation) {
-                alert('Please select an operation');
-                return;
-            }
+            const expression = document.getElementById('display').value;
+            if (!expression) return;
             
             try {
-                const response = await fetch('/calculate', {
+                const response = await fetch('/evaluate', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        num1: num1,
-                        num2: num2,
-                        operation: selectedOperation
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ expression })
                 });
-                
                 const data = await response.json();
-                
-                document.getElementById('resultValue').textContent = data.result;
-                document.getElementById('result').style.display = 'block';
-                
+                document.getElementById('display').value = data.result;
             } catch (error) {
-                alert('Error calculating result: ' + error.message);
+                document.getElementById('display').value = 'Error';
             }
         }
+        
+        function convertBase(base) {
+            const value = document.getElementById('display').value;
+            if (!value) return;
+            
+            try {
+                const num = parseInt(value, 10);
+                let result;
+                switch(base) {
+                    case 'bin': result = num.toString(2); break;
+                    case 'oct': result = num.toString(8); break;
+                    case 'hex': result = num.toString(16).toUpperCase(); break;
+                }
+                document.getElementById('display').value = result;
+            } catch (error) {
+                document.getElementById('display').value = 'Error';
+            }
+        }
+        
+        const units = {
+            length: { meter: 1, kilometer: 1000, centimeter: 0.01, inch: 0.0254, foot: 0.3048 },
+            weight: { kilogram: 1, gram: 0.001, pound: 0.453592, ounce: 0.0283495 },
+            temperature: { celsius: 'C', fahrenheit: 'F', kelvin: 'K' }
+        };
+        
+        function updateUnits() {
+            const type = document.getElementById('unitType').value;
+            const fromUnit = document.getElementById('fromUnit');
+            const toUnit = document.getElementById('toUnit');
+            
+            fromUnit.innerHTML = '';
+            toUnit.innerHTML = '';
+            
+            Object.keys(units[type]).forEach(unit => {
+                fromUnit.innerHTML += `<option value="${unit}">${unit}</option>`;
+                toUnit.innerHTML += `<option value="${unit}">${unit}</option>`;
+            });
+        }
+        
+        function convertUnit() {
+            const type = document.getElementById('unitType').value;
+            const value = parseFloat(document.getElementById('fromValue').value);
+            const from = document.getElementById('fromUnit').value;
+            const to = document.getElementById('toUnit').value;
+            
+            if (!value) return;
+            
+            let result;
+            if (type === 'temperature') {
+                result = convertTemperature(value, from, to);
+            } else {
+                const fromFactor = units[type][from];
+                const toFactor = units[type][to];
+                result = (value * fromFactor) / toFactor;
+            }
+            
+            document.getElementById('unitResult').textContent = `${value} ${from} = ${result.toFixed(4)} ${to}`;
+        }
+        
+        function convertTemperature(value, from, to) {
+            if (from === to) return value;
+            
+            let celsius = value;
+            if (from === 'fahrenheit') celsius = (value - 32) * 5/9;
+            if (from === 'kelvin') celsius = value - 273.15;
+            
+            if (to === 'celsius') return celsius;
+            if (to === 'fahrenheit') return celsius * 9/5 + 32;
+            if (to === 'kelvin') return celsius + 273.15;
+        }
+        
+        // Initialize unit converter
+        updateUnits();
+        
+        // Keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (currentCalculator === 'basic' || currentCalculator === 'scientific') {
+                if (e.key >= '0' && e.key <= '9' || e.key === '.') appendToDisplay(e.key);
+                if (e.key === '+' || e.key === '-' || e.key === '*' || e.key === '/') appendToDisplay(e.key);
+                if (e.key === 'Enter') calculate();
+                if (e.key === 'Escape') clearDisplay();
+                if (e.key === 'Backspace') deleteLast();
+            }
+        });
     </script>
 </body>
 </html>
